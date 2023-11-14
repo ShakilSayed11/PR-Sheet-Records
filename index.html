@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>PR Log's - Developed By Shakil Sayed</title>
+    <title>Google Sheets Data Display</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
     <style>
     :root {
     /* Updated Color Palette with Gradients */
@@ -151,7 +152,8 @@ tr:nth-child(even) {
         font-size: 14px;
     }
 }
-        /* CSS */
+
+/* CSS */
 .button-30 {
   align-items: center;
   appearance: none;
@@ -198,6 +200,9 @@ tr:nth-child(even) {
   box-shadow: #ffffff 0 3px 7px inset;
   transform: translateY(2px);
 }
+
+
+
     </style>
 </head>
 <body>
@@ -212,9 +217,8 @@ tr:nth-child(even) {
         <button id="prevPage">Previous</button>
         <span id="pageInfo"></span>
         <button id="nextPage">Next</button>
-        <input type="number" id="recordsPerPage" placeholder="Records per Page" value="20">
+        <input type="number" id="recordsPerPage" placeholder="Records per Page" value="10">
     </div>
-
     <table id="sheetTable">
         <thead>
             <tr>
@@ -234,6 +238,8 @@ tr:nth-child(even) {
         </tbody>
     </table>
     <button class="button-30" role="button" id="downloadExcel">Download Report</button>
+
+
     <script>
     document.addEventListener('DOMContentLoaded', function() {
     const apiKey = 'AIzaSyAWVybWDvIA9Xiic2z3uoat4V1ymFshW7s';
@@ -312,7 +318,7 @@ tr:nth-child(even) {
     setInterval(fetchData, 30000);
 });
 
-        document.getElementById('downloadExcel').addEventListener('click', function() {
+document.getElementById('downloadExcel').addEventListener('click', function() {
     // Read the table element into a workbook
     var table = document.getElementById('sheetTable');
     var workbook = XLSX.utils.table_to_book(table);
@@ -320,7 +326,6 @@ tr:nth-child(even) {
     // Write the workbook to a file
     XLSX.writeFile(workbook, 'TableData.xlsx');
 });
-
 
     </script>
 </body>
