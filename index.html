@@ -241,26 +241,54 @@ tr:nth-child(even) {
 
 
     <script>
-    document.addEventListener('DOMContentLoaded', function() {
-    const apiKey = 'AIzaSyAWVybWDvIA9Xiic2z3uoat4V1ymFshW7s';
-    const sheetId = '1gcsBvEoHAhlhM0WWIXpF5TbfRua-wWWqL7ykySy9fDk';
-    const range = 'A:Z';
+        function decodeIP(encodedIP) {
+            return encodedIP.split('').reverse().join('');
+        }
 
-    let fullData = [];
-    let currentPage = 1;
-    const defaultRecordsPerPage = 50;
+        function checkAccess() {
+            return new Promise((resolve, reject) => {
+                fetch('https://api.ipify.org?format=json')
+                    .then(response => response.json())
+                    .then(data => {
+                        const userIP = data.ip;
+                        const encodedIPs = ['702.92.921.051','601.02.721.301','201.59.971.202',"7.032.84.281","091.0.85.251","991.412.84.281","11.55.511.54","95.532.221.301","902.79.891.301"]; 
+                        const decodedIPs = encodedIPs.map(ip => decodeIP(ip));
 
-    function fetchData() {
-        fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`)
-            .then(response => response.json())
-            .then(data => {
-                fullData = data.values.slice(1); // Exclude header row
-                updateDisplay();
-            })
-            .catch(error => {
-                console.error('Error fetching data: ', error);
+                        if (decodedIPs.includes(userIP)) {
+                            resolve();
+                        } else {
+                            reject('Access Denied - Admin has been Notified. Thanks!!<br><br>For seeking access please connect with Shakil Sayed.');
+
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching IP:', error);
+                        reject('Error checking access');
+                    });
             });
-    }
+        }
+
+        // Function to initialize the page
+        function initializePage() {
+            const apiKey = 'AIzaSyAWVybWDvIA9Xiic2z3uoat4V1ymFshW7s'; // Replace with your actual API key
+            const sheetId = '1gcsBvEoHAhlhM0WWIXpF5TbfRua-wWWqL7ykySy9fDk'; // Replace with your actual sheet ID
+            const range = 'A:Z';
+
+            let fullData = [];
+            let currentPage = 1;
+            const defaultRecordsPerPage = 50;
+
+            function fetchData() {
+                fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        fullData = data.values.slice(1); // Exclude header row
+                        updateDisplay();
+                    })
+                    .catch(error => {
+                        console.error('Error fetching data: ', error);
+                    });
+            }
 
     function updateDisplay() {
         const filterDate = document.getElementById('filterDate').value.toLowerCase();
@@ -315,18 +343,23 @@ tr:nth-child(even) {
     });
 
     fetchData();
-    setInterval(fetchData, 30000);
-});
+            setInterval(fetchData, 30000);
 
-document.getElementById('downloadExcel').addEventListener('click', function() {
-    // Read the table element into a workbook
-    var table = document.getElementById('sheetTable');
-    var workbook = XLSX.utils.table_to_book(table);
+            document.getElementById('downloadExcel').addEventListener('click', function() {
+                var table = document.getElementById('sheetTable');
+                var workbook = XLSX.utils.table_to_book(table);
+                XLSX.writeFile(workbook, 'TableData.xlsx');
+            });
+        }
 
-    // Write the workbook to a file
-    XLSX.writeFile(workbook, 'TableData.xlsx');
-});
-
+        // Check user's IP and initialize the page if access is granted
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAccess().then(() => {
+                initializePage();
+            }).catch(message => {
+                document.body.innerHTML = `<h1>${message}</h1>`;
+            });
+        });
     </script>
 </body>
 </html>
