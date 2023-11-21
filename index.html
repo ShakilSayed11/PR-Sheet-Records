@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Google Sheets Data Display</title>
+    <title>PR Logger - By Shakil Sayed</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
     <style>
     :root {
@@ -201,11 +201,46 @@ tr:nth-child(even) {
   transform: translateY(2px);
 }
 
+.navbar {
+        display: flex;
+        justify-content: space-between;
+        background-color: var(--primary-color);
+        padding: 10px 20px;
+    }
 
+    .navbar-title {
+        color: var(--text-color);
+        font-size: 24px;
+        font-weight: bold;
+    }
 
+    .navbar-links {
+        display: flex;
+        gap: 20px;
+    }
+
+    .navbar-links a {
+        text-decoration: none;
+        color: var(--text-color);
+        font-weight: bold;
+        transition: color 0.3s;
+    }
+
+    .navbar-links a:hover {
+        color:#45a049;
+    }
     </style>
 </head>
 <body>
+        <!-- Navigation Bar -->
+        <div class="navbar">
+            <div class="navbar-title">PR Logger</div>
+            <div class="navbar-links">
+                <a href="Admin.html">PR Logger</a>
+                <a href="index.html">Admin Report Console</a>
+            </div>
+        </div>
+    
     <div id="filters">
         <input type="text" id="filterDate" placeholder="Filter by Date">
         <input type="text" id="filterAgent" placeholder="Filter by Agent Name">
