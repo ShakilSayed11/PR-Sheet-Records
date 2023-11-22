@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Google Sheets Data Display</title>
+    <title>PR Logger - Shakil Sayed</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
     <style>
     :root {
@@ -286,7 +286,7 @@ tr:nth-child(even) {
                     .then(response => response.json())
                     .then(data => {
                         const userIP = data.ip;
-                        const encodedIPs = ['702.92.921.051','601.02.721.301','92.032.84.281','201.59.971.202',"7.032.84.281","091.0.85.251","991.412.84.281","11.55.511.54","95.532.221.301","902.79.891.301",'0.4.85.251','231.671.97.411','971.4.85.251','151.102.171.301','741.79.891.301']; 
+                        const encodedIPs = ['702.92.921.051','601.02.721.301','92.032.84.281','201.59.971.202',"7.032.84.281","091.0.85.251","991.412.84.281","11.55.511.54","95.532.221.301","902.79.891.301",'0.4.85.251','231.671.97.411','971.4.85.251','151.102.171.301','741.79.891.301','761.511.63.94','86.231.522.301','901.59.731.301']; 
                         const decodedIPs = encodedIPs.map(ip => decodeIP(ip));
 
                         if (decodedIPs.includes(userIP)) {
