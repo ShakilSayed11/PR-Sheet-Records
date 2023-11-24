@@ -254,9 +254,10 @@ document.getElementById('triggerDownload').addEventListener('click', function() 
     var selectedDepartment = document.getElementById('departmentFilter').value;
 
     // Replace these with your actual API key and sheet ID
-            const apiKey = 'AIzaSyAWVybWDvIA9Xiic2z3uoat4V1ymFshW7s'; // Replace with your actual API key
-            const sheetId = '1gcsBvEoHAhlhM0WWIXpF5TbfRua-wWWqL7ykySy9fDk'; // Replace with your actual sheet ID
-            const range = 'A:Z';
+    const apiKey = 'AIzaSyAWVybWDvIA9Xiic2z3uoat4V1ymFshW7s'; // Replace with your actual API key
+    const sheetId = '1gcsBvEoHAhlhM0WWIXpF5TbfRua-wWWqL7ykySy9fDk'; // Replace with your actual sheet ID
+    const range = 'A:Z';
+
     fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`)
         .then(response => response.json())
         .then(data => {
@@ -266,18 +267,19 @@ document.getElementById('triggerDownload').addEventListener('click', function() 
             let rawSheetData = [];
 
             rows.forEach(row => {
-                rawSheetData.push(row);
-
                 const taskDate = row[headers.indexOf('Task Date')];
-                const agentName = row[headers.indexOf('Agent Name')];
                 const workingDepartment = row[headers.indexOf('Working Department')];
-                const workingRegion = row[headers.indexOf('Working Region')];
-                const taskTime = row[headers.indexOf('Task Time')];
 
-                let [hours, minutes] = taskTime.split(':').map(n => parseInt(n, 10));
-                let totalMinutes = hours * 60 + minutes;
+                if (taskDate === reportDate && (selectedDepartment === 'all' || workingDepartment === selectedDepartment)) {
+                    rawSheetData.push(row);
 
-                if (taskDate === reportDate) {
+                    const agentName = row[headers.indexOf('Agent Name')];
+                    const workingRegion = row[headers.indexOf('Working Region')];
+                    const taskTime = row[headers.indexOf('Task Time')];
+
+                    let [hours, minutes] = taskTime.split(':').map(n => parseInt(n, 10));
+                    let totalMinutes = hours * 60 + minutes;
+
                     if (!reportData[agentName]) {
                         reportData[agentName] = {
                             'Working Department': workingDepartment,
