@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Console - Shakil Sayed</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"> <!-- Font Awesome for icons -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
  body {
             font-family: 'Poppins', sans-serif;
@@ -161,21 +162,75 @@
     cursor: pointer;
 }
 
-/* Dropdown Styles */
-select {
-    width: 80%; 
-    padding: 8px 16px; 
-    margin-top: 10px;
-    margin-bottom: 20px;
-    border: 1px solid #ddd; 
-    border-radius: 4px; 
-    font-size: 16px; 
-    color: #333;
-    background-color: #fff;
-    box-sizing: border-box;
+/* Style for the checkbox dropdown */
+.checkbox-dropdown {
+    width: auto;
+    border: 1px solid #aaa;
+    padding: 10px;
+    position: relative;
+    margin: 0 auto;
+    background-color: white;
+    color: black;
     cursor: pointer;
+    user-select: none;
 }
 
+/* Display CSS arrow to the right of the dropdown text */
+.checkbox-dropdown:after {
+    content: '';
+    height: 0;
+    position: absolute;
+    width: 0;
+    border: 6px solid transparent;
+    border-top-color: #000;
+    top: 50%;
+    right: 10px;
+    margin-top: -3px;
+}
+
+/* Reverse the CSS arrow when the dropdown is active */
+.checkbox-dropdown.is-active:after {
+    border-bottom-color: #000;
+    border-top-color: transparent;
+    margin-top: -9px;
+}
+
+/* Style for the dropdown list */
+.checkbox-dropdown-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    position: absolute;
+    top: 100%;
+    border: inherit;
+    border-top: none;
+    left: -1px;
+    right: -1px;
+    opacity: 0;
+    background-color: white;
+    transition: opacity 0.4s ease-in-out;
+    max-height: 200px;
+    overflow: auto;
+    z-index: 5;
+    pointer-events: none;
+}
+
+.is-active .checkbox-dropdown-list {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* Style for each list item in the dropdown */
+.checkbox-dropdown-list li label {
+    display: block;
+    border-bottom: 1px solid silver;
+    padding: 10px;
+    transition: background-color 0.2s ease-out;
+}
+
+.checkbox-dropdown-list li label:hover {
+    background-color: #f2f2f2;
+}
 /* Button Styles */
 button {
     background-color: #4CAF50; 
@@ -216,43 +271,67 @@ button:hover {
     </div>
 </div>
 
-<!-- Modal for Department Selection -->
-<div id="departmentModal" class="modal" style="display: none;">
-    <div class="modal-content">
-        <span class="close" id="closeModal">&times;</span>
-        <h2>Select Department</h2>
-        <select id="departmentFilter">
-            <option value="all">All Departments</option>
-            <!-- Add options for each department here -->
-                    <option value="Pathways">Pathways</option>
-					<option value="Oxford Direct - Ravensbourne">Oxford Direct - Ravensbourne</option>
-                    <option value="Oxford Direct - BPP">Oxford Direct - BPP</option>
-                    <option value="Oxford Direct - Roehampton">Oxford Direct - Roehampton</option>
-        </select>
-        <button id="triggerDownload">Download Report</button>
+    <!-- Modal for Department Selection -->
+    <div id="departmentModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close" id="closeModal">&times;</span>
+            <h2>Select Department</h2>
+            <div class="checkbox-dropdown">
+                Choose Department
+                <ul class="checkbox-dropdown-list">
+                    <li><label><input type="checkbox" value="all" name="department" />All Departments</label></li>
+                    <li><label><input type="checkbox" value="Pathways" name="department" />Pathways</label></li>
+                    <li><label><input type="checkbox" value="Oxford Direct - Ravensbourne" name="department" />Oxford Direct - Ravensbourne</label></li>
+                    <li><label><input type="checkbox" value="Oxford Direct - BPP" name="department" />Oxford Direct - BPP</label></li>
+                    <li><label><input type="checkbox" value="Oxford Direct - Roehampton" name="department" />Oxford Direct - Roehampton</label></li>
+                </ul>
+            </div>
+            <button id="triggerDownload">Download Report</button>
+        </div>
     </div>
-</div>
-
+  
+  
 <!-- JavaScript to control the report download -->
 <script>
-document.getElementById('downloadExcel').addEventListener('click', function() {
-    var reportDate = document.getElementById('filterDate').value;
-    if (!reportDate) {
-        alert('Please select a date for the report.');
-        return;
-    }
-    document.getElementById('departmentModal').style.display = 'block';
+$(document).ready(function() {
+    $(".checkbox-dropdown").click(function () {
+        $(this).toggleClass("is-active");
+    });
+
+    $(".checkbox-dropdown ul").click(function(e) {
+        e.stopPropagation();
+    });
+
+    document.getElementById('downloadExcel').addEventListener('click', function() {
+        var reportDate = document.getElementById('filterDate').value;
+        if (!reportDate) {
+            alert('Please select a date for the report.');
+            return;
+        }
+        document.getElementById('departmentModal').style.display = 'block';
+    });
+
+    document.getElementById('closeModal').addEventListener('click', function() {
+        document.getElementById('departmentModal').style.display = 'none';
+    });
+
+    document.getElementById('triggerDownload').addEventListener('click', function() {
+        document.getElementById('departmentModal').style.display = 'none';
+        var reportDate = document.getElementById('filterDate').value;
+        var checkboxes = document.querySelectorAll('.checkbox-dropdown-list input[type="checkbox"]:checked');
+        var selectedDepartments = Array.from(checkboxes).map(cb => cb.value);
+
+        // Check if 'all' is selected
+        if (selectedDepartments.includes('all')) {
+            selectedDepartments = ['all'];
+        }
+
+        // Fetch and process the data for report generation
+        fetchAndProcessData(reportDate, selectedDepartments);
+    });
 });
 
-document.getElementById('closeModal').addEventListener('click', function() {
-    document.getElementById('departmentModal').style.display = 'none';
-});
-
-document.getElementById('triggerDownload').addEventListener('click', function() {
-    document.getElementById('departmentModal').style.display = 'none';
-    var reportDate = document.getElementById('filterDate').value;
-    var selectedDepartment = document.getElementById('departmentFilter').value;
-
+function fetchAndProcessData(reportDate, selectedDepartments) {
     // Replace these with your actual API key and sheet ID
     const apiKey = 'AIzaSyAWVybWDvIA9Xiic2z3uoat4V1ymFshW7s'; // Replace with your actual API key
     const sheetId = '1gcsBvEoHAhlhM0WWIXpF5TbfRua-wWWqL7ykySy9fDk'; // Replace with your actual sheet ID
@@ -270,7 +349,7 @@ document.getElementById('triggerDownload').addEventListener('click', function() 
                 const taskDate = row[headers.indexOf('Task Date')];
                 const workingDepartment = row[headers.indexOf('Working Department')];
 
-                if (taskDate === reportDate && (selectedDepartment === 'all' || workingDepartment === selectedDepartment)) {
+                if (taskDate === reportDate && (selectedDepartments.includes('all') || selectedDepartments.includes(workingDepartment))) {
                     rawSheetData.push(row);
 
                     const agentName = row[headers.indexOf('Agent Name')];
@@ -309,9 +388,9 @@ document.getElementById('triggerDownload').addEventListener('click', function() 
                 };
             });
 
-            let filteredReportArray = selectedDepartment === 'all'
+            let filteredReportArray = selectedDepartments.includes('all')
                 ? reportArray
-                : reportArray.filter(row => row['Working Department'] === selectedDepartment);
+                : reportArray.filter(row => selectedDepartments.includes(row['Working Department']));
 
             if (filteredReportArray.length === 0) {
                 alert('No data found for the selected date and/or department.');
@@ -323,7 +402,7 @@ document.getElementById('triggerDownload').addEventListener('click', function() 
         .catch(error => {
             console.error('Error fetching data:', error);
         });
-});
+}
 
 function createSheetsAndDownload(reportArray, rawSheetData, headers, reportDate) {
     let worksheet1 = XLSX.utils.json_to_sheet(reportArray);
@@ -336,6 +415,7 @@ function createSheetsAndDownload(reportArray, rawSheetData, headers, reportDate)
 
     XLSX.writeFile(workbook, `Report_${reportDate}.xlsx`);
 }
+
 </script>
 </body>
 </html>
