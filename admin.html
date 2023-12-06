@@ -351,6 +351,7 @@ $(document).ready(function() {
                 const rows = data.values.slice(1);
                 let reportData = {};
                 let rawSheetData = [];
+                const datewiseReportData = {};
 
                 rows.forEach(row => {
                     const taskDate = row[headers.indexOf('Task Date')];
@@ -370,38 +371,47 @@ $(document).ready(function() {
                         let [hours, minutes] = taskTime.split(':').map(n => parseInt(n, 10));
                         let totalMinutes = hours * 60 + minutes;
 
-                        if (!reportData[agentName]) {
-                            reportData[agentName] = {
+                        if (!datewiseReportData[agentName]) {
+                            datewiseReportData[agentName] = {};
+                        }
+
+                        if (!datewiseReportData[agentName][taskDate]) {
+                            datewiseReportData[agentName][taskDate] = {
                                 'Working Department': workingDepartment,
                                 'Working Region': workingRegion,
                                 'Total Task Time': 0,
                                 'Submission Count': 0
                             };
                         }
-                        reportData[agentName]['Total Task Time'] += totalMinutes;
-                        reportData[agentName]['Submission Count'] += 1;
+
+                        datewiseReportData[agentName][taskDate]['Total Task Time'] += totalMinutes;
+                        datewiseReportData[agentName][taskDate]['Submission Count'] += 1;
                     }
                 });
 
-                let reportArray = Object.keys(reportData).map(agentName => {
-                    const totalMinutes = reportData[agentName]['Total Task Time'];
-                    const hours = Math.floor(totalMinutes / 60);
-                    const minutes = totalMinutes % 60;
-                    const formattedTime = `${hours}h ${minutes}m`;
+                let datewiseReportArray = [];
 
-                    return {
-                        'Agent Name': agentName,
-                        'Working Department': reportData[agentName]['Working Department'],
-                        'Working Region': reportData[agentName]['Working Region'],
-                        'Total Task Time': formattedTime,
-                        'Submission Count': reportData[agentName]['Submission Count'],
-                        'Date': fromDate + ' to ' + toDate
-                    };
-                });
+                for (const agentName in datewiseReportData) {
+                    for (const taskDate in datewiseReportData[agentName]) {
+                        const totalMinutes = datewiseReportData[agentName][taskDate]['Total Task Time'];
+                        const hours = Math.floor(totalMinutes / 60);
+                        const minutes = totalMinutes % 60;
+                        const formattedTime = `${hours}h ${minutes}m`;
+
+                        datewiseReportArray.push({
+                            'Agent Name': agentName,
+                            'Working Department': datewiseReportData[agentName][taskDate]['Working Department'],
+                            'Working Region': datewiseReportData[agentName][taskDate]['Working Region'],
+                            'Total Task Time': formattedTime,
+                            'Submission Count': datewiseReportData[agentName][taskDate]['Submission Count'],
+                            'Date': taskDate
+                        });
+                    }
+                }
 
                 let filteredReportArray = selectedDepartments.includes('all')
-                    ? reportArray
-                    : reportArray.filter(row => selectedDepartments.includes(row['Working Department']));
+                    ? datewiseReportArray
+                    : datewiseReportArray.filter(row => selectedDepartments.includes(row['Working Department']));
 
                 if (filteredReportArray.length === 0) {
                     alert('No data found for the selected date range and/or department.');
@@ -427,7 +437,7 @@ $(document).ready(function() {
         XLSX.writeFile(workbook, `Report_${fromDate}_to_${toDate}.xlsx`);
     }
 });
-    
+
 </script>
 </body>
 </html>
