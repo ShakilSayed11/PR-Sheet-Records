@@ -275,57 +275,28 @@ tr:nth-child(even) {
     </table>
     <button class="button-30" role="button" id="downloadExcel">Download Report</button>
 
-
-    <script>
-        function decodeIP(encodedIP) {
-            return encodedIP.split('').reverse().join('');
-        }
-
-        function checkAccess() {
-            return new Promise((resolve, reject) => {
-                fetch('https://api.ipify.org?format=json')
-                    .then(response => response.json())
-                    .then(data => {
-                        const userIP = data.ip;
-                        const encodedIPs = ['702.92.921.051','442.4.931.301','601.02.721.301','92.032.84.281','201.59.971.202',"7.032.84.281","091.0.85.251","991.412.84.281","11.55.511.54","95.532.221.301","902.79.891.301",'0.4.85.251','231.671.97.411','971.4.85.251','151.102.171.301','741.79.891.301','761.511.63.94','86.231.522.301','901.59.731.301','041.532.221.301','251.27.14.83','412.231.522.301','57.511.63.94','431.04.211.301','21.55.511.54','601.02.721.301','832.26.841.301','721.922.84.281','52.252.99.711','412.231.522.301','842.79.891.301','311.231.522.301','04.212.84.281','052.922.84.281','101.3.591.601','85.92.921.051','641.5.122.601','19.542.99.711','461.5.122.601','251.102.171.301','38.231.522.301','381.701.44.301','931.231.522.301','242.231.522.301','011.231.522.301','68.552.99.711','651.622.01.301','56.142.99.711','322.321.63.94','63.231.522.301','271.742.99.711','97.231.522.301','961.231.522.301','251.231.522.301','452.231.522.301','55.231.522.301','51.231.522.301','64.69.491.302','411.231.522.301','561.37.14.83','642.4.931.301','181.4.591.601','04.92.921.051','341.701.44.301','341.701.44.301','951.102.171.301','451.231.522.301','68.132.84.281','68.132.84.281','44.701.811.54','442.132.84.281','212.622.84.281','081.92.921.051','321.312.291.302','761.89.491.302','651.102.171.301','511.231.522.301','2.822.84.281','391.79.891.301','98.231.522.301','06.231.522.301','271.601.44.301','2.231.522.301'];
-                        const decodedIPs = encodedIPs.map(ip => decodeIP(ip));
-
-                        if (decodedIPs.includes(userIP)) {
-                            resolve();
-                        } else {
-                            reject('Access Denied - Admin has been Notified. Thanks!!<br><br>For seeking access please connect with Shakil Sayed.');
-
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error fetching IP:', error);
-                        reject('Error checking access');
-                    });
-            });
-        }
-
-        // Function to initialize the page
-        function initializePage() {
+<script>       
+    function initializePage() {
             const apiKey = 'AIzaSyAWVybWDvIA9Xiic2z3uoat4V1ymFshW7s'; // Replace with your actual API key
             const sheetId = '1gcsBvEoHAhlhM0WWIXpF5TbfRua-wWWqL7ykySy9fDk'; // Replace with your actual sheet ID
             const range = 'A:Z';
 
-            let fullData = [];
-            let currentPage = 1;
-            const defaultRecordsPerPage = 50;
 
-            function fetchData() {
-                fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        fullData = data.values.slice(1); // Exclude header row
-                        updateDisplay();
-                    })
-                    .catch(error => {
-                        console.error('Error fetching data: ', error);
-                    });
-            }
+        let fullData = [];
+        let currentPage = 1;
+        const defaultRecordsPerPage = 50;
 
+        function fetchData() {
+            fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`)
+                .then(response => response.json())
+                .then(data => {
+                    fullData = data.values.slice(1); // Exclude header row
+                    updateDisplay();
+                })
+                .catch(error => {
+                    console.error('Error fetching data: ', error);
+                });
+        }
     function updateDisplay() {
         const filterDate = document.getElementById('filterDate').value.toLowerCase();
         const filterAgent = document.getElementById('filterAgent').value.toLowerCase();
@@ -379,23 +350,18 @@ paginatedData.forEach(row => {
     });
 
     fetchData();
-            setInterval(fetchData, 30000);
+        setInterval(fetchData, 30000);
 
-            document.getElementById('downloadExcel').addEventListener('click', function() {
-                var table = document.getElementById('sheetTable');
-                var workbook = XLSX.utils.table_to_book(table);
-                XLSX.writeFile(workbook, 'TableData.xlsx');
-            });
-        }
-
-        // Check user's IP and initialize the page if access is granted
-        document.addEventListener('DOMContentLoaded', function() {
-            checkAccess().then(() => {
-                initializePage();
-            }).catch(message => {
-                document.body.innerHTML = `<h1>${message}</h1>`;
-            });
+        document.getElementById('downloadExcel').addEventListener('click', function() {
+            var table = document.getElementById('sheetTable');
+            var workbook = XLSX.utils.table_to_book(table);
+            XLSX.writeFile(workbook, 'TableData.xlsx');
         });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        initializePage();
+    });
     </script>
 </body>
-</html>
+</html> 
