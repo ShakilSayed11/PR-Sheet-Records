@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -505,9 +504,12 @@ function downloadDataByDateRange() {
 
                 // Add a worksheet with the filtered data
                 const worksheet = XLSX.utils.aoa_to_sheet([data[0], ...filteredData]); // Include headers
-
-                // Add the worksheet to the workbook
                 XLSX.utils.book_append_sheet(workbook, worksheet, 'FilteredErrorData');
+
+                // Create a summary report
+                const summaryData = generateSummaryReport(filteredData);
+                const summaryWorksheet = XLSX.utils.aoa_to_sheet(summaryData);
+                XLSX.utils.book_append_sheet(workbook, summaryWorksheet, 'SummaryReport');
 
                 // Save the workbook in XLS format
                 XLSX.writeFile(workbook, 'FilteredErrorData.xls');
@@ -523,6 +525,65 @@ function downloadDataByDateRange() {
         console.error('Error fetching data from Google Sheets:', error);
         alert('Error fetching data from Google Sheets. Please try again later.');
     });
+}
+
+// Function to generate summary report data
+function generateSummaryReport(data) {
+    const summaryData = [['Auditor Name', 'Date', 'No of Submission', 'No Error']];
+
+    // Group data by Auditor Name and Date
+    const groupedData = {};
+    data.forEach(row => {
+        const auditorName = row[1]; // Assuming Auditor Name is the second column
+        const date = row[0];
+        const timeStamp = row[13]; // Assuming Time Stamp is the 14th column
+        const typeOfError = row[9]; // Assuming Type Of Error is the 10th column
+
+        if (!groupedData[auditorName]) {
+            groupedData[auditorName] = {};
+        }
+
+        if (!groupedData[auditorName][date]) {
+            groupedData[auditorName][date] = { submissions: 0, noErrorCount: 0 };
+        }
+
+        groupedData[auditorName][date].submissions++;
+        
+        // Check if the Type Of Error is 'No Error'
+        if (typeOfError.toLowerCase() === 'no error') {
+            groupedData[auditorName][date].noErrorCount++;
+        }
+    });
+
+    // Convert grouped data to summary format
+    Object.keys(groupedData).forEach(auditorName => {
+        Object.keys(groupedData[auditorName]).forEach(date => {
+            const { submissions, noErrorCount } = groupedData[auditorName][date];
+            summaryData.push([auditorName, date, submissions, noErrorCount]);
+        });
+    });
+
+    return summaryData;
+}
+
+
+// Function to calculate idle time in minutes (limited to 24 hours)
+function calculateIdleTime(timeStamp) {
+    const submissionTime = new Date(timeStamp);
+    const currentTime = new Date();
+
+    let timeDifference = currentTime - submissionTime;
+    timeDifference = Math.max(0, Math.min(timeDifference, 24 * 60 * 60 * 1000)); // Limit to 0 to 24 hours
+
+    return timeDifference / (1000 * 60); // Convert milliseconds to minutes
+}
+
+
+// Function to format idle time in 'hh h mm m' format
+function formatIdleTime(idleTime) {
+    const hours = Math.floor(idleTime / 60);
+    const minutes = Math.floor(idleTime % 60);
+    return `${hours} h ${minutes} m`;
 }
 
 
@@ -545,4 +606,3 @@ function closeModal() {
     </script>
 </body>
 </html>
-
