@@ -1,1 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Viewer</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.4/xlsx.full.min.js"></script>
+    <style>
+body {
+  font-family: "Poppins", sans-serif;
+  margin: 20px;
+  background: #1a1a1a;
+  color: #ffffff;
+}
+
+h1 {
+  text-align: center;
+  color: #54a0ff;
+  font-size: 40px;
+  font-family: "Montserrat", sans-serif;
+  font-weight: 700;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  background: #fff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+  color: #333;
+}
+
+th, td {
+  border: 1px solid #ddd;
+  text-align: left;
+  padding: 12px;
+  border-radius: 8px;
+}
+
+th {
+  background: #f2f2f2;
+}
+
+.pagination, .search-container {
+  display: flex;
+  justify-content: space-between;
+  background: #333;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  border-radius: 10px;
+  margin-top: 20px;
+}
+
+.page-link, .download-btn {
+  padding: 10px 15px;
+  margin: 0 5px;
+  cursor: pointer;
+  text-decoration: none;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  background: #54a0ff;
+  transition: background 0.2s ease-in-out;
+}
+
+.page-link:hover, .download-btn:hover {
+  background: #4891ea;
+}
+
+.search-bar {
+  flex: 1;
+  padding: 10px;
+  margin-right: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+/* Styling for the datepicker */
+.ui-datepicker {
+  font-family: 'Poppins', sans-serif; /* Apply the Poppins font */
+  font-size: 14px; /* Adjust the font size */
+}
+
+.ui-datepicker-header {
+  background-color: #54a0ff; /* Header background color */
+  color: #ffffff; /* Header text color */
+}
+
+.ui-datepicker-title {
+  color: #ffffff; /* Month and year text color */
+}
+
+.ui-datepicker-prev, .ui-datepicker-next {
+  background-color: #4891ea; /* Previous and next button background color */
+  color: #ffffff; /* Previous and next button text color */
+}
+
+.ui-datepicker-prev:hover, .ui-datepicker-next:hover {
+  background-color: #2d6cb0; /* Previous and next button hover background color */
+}
+
+.ui-datepicker-calendar {
+  border: 1px solid #ddd; /* Calendar border */
+}
+
+.ui-datepicker-calendar th {
+  background-color: #f2f2f2; /* Calendar header background color */
+  color: #333; /* Calendar header text color */
+}
+
+.ui-datepicker-calendar td {
+  border: 1px solid #ddd; /* Calendar cell border */
+}
+
+.ui-datepicker-calendar a {
+  color: #333; /* Calendar day text color */
+}
+
+.ui-datepicker-calendar a:hover {
+  background-color: #eaeaea; /* Calendar day hover background color */
+}
+
+/* Modal styles for Web App License Agreement */
+.modalid {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    align-items: center;
+    justify-content: center;
+    overflow-y: auto;
+}
+
+.modal-content {
+    background-color: #ffffff;
+    color: #1a1a1a;
+    font-family: 'Poppins', sans-serif;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-width: 80%;
+    width: 100%;
+    max-height: 80vh;
+    overflow-y: auto;
+    position: relative;
+}
+
+.close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    color: #333;
+    cursor: pointer;
+    font-size: 20px;
+}
+
+.h1id {
+    font-size: 2em;
+    color: #333;
+}
+
+p, ol {
+    margin-bottom: 10px;
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+ol {
+    list-style-type: lower-alpha;
+    margin-left: 20px;
+}
+
+li {
+    margin-bottom: 5px;
+}
+
+.paraid {
+    text-align: center; /* Center-align the paragraph */
+    margin-top: 30px;
+    margin-bottom: 30px;
+}
+
+.license-link {
+    color: #54a0ff; /* Set link color */
+    text-decoration: underline; /* Add underline to indicate a link */
+    cursor: pointer;
+}
+
+.license-link:hover {
+    color: #4891ea; /* Change color on hover for visual feedback */
+}
+
+    </style>
+</head>
+
+<body>
+    <h1>Data Viewer</h1>
+
+    <!-- Search Bars -->
+    <div class="search-container">
+        <input type="text" id="searchAgent" class="search-bar" placeholder="Search by Agent Name">
+        <input type="text" id="searchStdID" class="search-bar" placeholder="Search by STD ID">
+        <input type="text" id="searchTicketNo" class="search-bar" placeholder="Search by Ticket No">
+        <input type="text" id="startDate" class="search-bar" placeholder="Start Date">
+        <input type="text" id="endDate" class="search-bar" placeholder="End Date">
+        <button class="download-btn" onclick="downloadDataByDateRange()">Download data by date range</button>
+    </div>
+
+    <!-- Display Data Table -->
+    <table id="dataTable">
+        <!-- Table headers -->
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Auditor Name</th>
+                <th>Agent Name</th>
+                <th>Department</th>
+                <th>Center</th>
+                <th>Region</th>
+                <th>Ticket No</th>
+                <th>Student ID</th>
+                <th>Action Taken</th>
+                <th>Type Of Error</th>
+                <th>Error Remark</th>
+                <th>Task Time</th>
+                <th>Task Name</th>
+                <th>Time Stamp</th>
+                <th>User Actioned</th>
+                <!-- Add other columns as needed -->
+            </tr>
+        </thead>
+        <!-- Table body -->
+        <tbody id="tableBody"></tbody>
+    </table>
+
+    <!-- Pagination -->
+    <div class="pagination" id="pagination"></div>
+
+    <p class="paraid" id="paraid">Expertly crafted and officially licensed under the authority of Shakil Sayed. We encourage you to explore the provided <a onclick="openModal()" class="license-link">licensing terms</a>.</p>
+
+    <div id="licenseModal" class="modalid">
+      <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <h1 class="h1id">WEB APP LICENSE AGREEMENT</h1>
+        <p>This Web App License Agreement (the "Agreement") is entered into by and between Shakil Sayed (hereinafter referred to as the "Licensor").</p>
+        
+        <ol>
+          <li><strong>LICENSE GRANT</strong><br><br>
+            Licensor hereby grants to the Licensee a personal, non-exclusive, non-transferable license to use the web app (hereinafter referred to as the "Web App").</li><br>
+          <li><strong>OWNERSHIP</strong><br><br>
+            The Web App is the sole property of Licensor. The Licensee acknowledges that no ownership rights are transferred by this Agreement.</li><br>
+          <li><strong>RESTRICTIONS</strong><br><br>
+            Licensee agrees not to:<br><br>
+            a. Copy or reproduce the Web App in any manner;<br><br>
+            b. Distribute, sublicense, lease, rent, or otherwise transfer the Web App to any third party;<br><br>
+            c. Modify, adapt, translate, reverse engineer, or decompile the Web App.</li><br>
+          <li><strong>EXCLUSIVITY</strong><br><br>
+            This license is exclusive to the Licensor. No other party is granted the right to use, modify, or distribute the Web App without explicit written consent from the Licensor.</li><br>
+          <li><strong>INTELLECTUAL PROPERTY</strong><br><br>
+            The Licensor retains all rights, title, and interest in and to the Web App, including all intellectual property rights.</li><br>
+          <li><strong>CONFIDENTIALITY</strong><br><br>
+            The Licensee agrees to keep the Web App confidential and not disclose, provide, or otherwise make it available to any third party without the prior written consent of the Licensor.</li><br>
+          <li><strong>TERMINATION</strong><br><br>
+            This Agreement shall terminate immediately upon any breach of its terms by the Licensee. Upon termination, the Licensee must cease using the Web App and destroy all copies in their possession.</li><br>
+          <li><strong>DISCLAIMER OF WARRANTY</strong><br><br>
+            The Web App is provided "as is," without warranty of any kind, express or implied.</li><br>
+          <li><strong>LIMITATION OF LIABILITY</strong><br><br>
+            In no event shall the Licensor be liable for any damages, including but not limited to direct, indirect, special, incidental, or consequential damages.</li><br>
+        </ol>
+        <p><strong>IN WITNESS WHEREOF,</strong> the Licensor has executed this Web App License Agreement as of [24-01-2024].</p>
+        <p><strong>Licensor:</strong>[Shaki Sayed]</p>
+        <p><strong>Date:</strong> [24-01-2024]</p>
+      </div>
+    </div>
+
+    <script src="https://apis.google.com/js/api.js"></script>
+    <script src="https://cdn.rawgit.com/SheetJS/sheetjs/82e5dfad/dist/xlsx.full.min.js"></script>
+
+    <script>
+        // Load the Google Sheets API
+        gapi.load('client', start);
+
+        const rowsPerPage = 5; // Adjust as needed
+        let currentPage = 1;
+        let loading = false;
+
+        function start() {
+            // Initialize the API client library
+            gapi.client.init({
+                apiKey: 'AIzaSyAWVybWDvIA9Xiic2z3uoat4V1ymFshW7s',
+                discoveryDocs: ['https://sheets.googleapis.com/$discovery/rest?version=v4'],
+            }).then(function () {
+                // Call the fetchData function after the API client has been initialized
+                fetchData();
+                // Set up periodic refresh every 3 seconds
+                setInterval(fetchData, 3000);
+            }).catch(function (error) {
+                console.error('Error initializing Google Sheets API:', error);
+            });
+        }
+
+        // Function to fetch and display data from Google Sheet
+        function fetchData() {
+            if (loading) return;
+
+            loading = true;
+
+            // Use the Google Sheets API to get data
+            gapi.client.sheets.spreadsheets.values.get({
+                spreadsheetId: '1OMNz-fW9Jjgf_rsIoBk4OB_NPvZTjzHczhLCjxyRb1A',
+                range: 'ErrorData!A:O', // Update with your sheet name and range
+            }).then(function (response) {
+                const data = response.result.values;
+
+                if (data.length > 0) {
+                    // Assuming the first row is headers
+                    const headers = data.shift();
+                    const tableBody = document.getElementById("tableBody");
+
+                    // Clear table body
+                    tableBody.innerHTML = "";
+
+                    // Apply filters based on search bars
+                    const filteredData = applyFilters(data);
+
+                    // Calculate start and end indices based on the current page
+                    const startIndex = (currentPage - 1) * rowsPerPage;
+                    const endIndex = startIndex + rowsPerPage;
+
+                    // Loop through the data and append rows to the table
+                    filteredData.slice(startIndex, endIndex).forEach((row, index) => {
+                        const entry = {};
+                        row.forEach((value, columnIndex) => {
+                            entry[headers[columnIndex]] = value;
+                        });
+
+                        const rowElement = document.createElement("tr");
+                        // Add other columns as needed
+                        rowElement.innerHTML = `
+                            <td>${entry.Date}</td>
+                            <td>${entry['Auditor Name']}</td>
+                            <td>${entry['Agent Name']}</td>
+                            <td>${entry['Department']}</td>
+                            <td>${entry['Center']}</td>
+                            <td>${entry['Region']}</td>
+                            <td>${entry['Ticket No']}</td>
+                            <td>${entry['Student ID']}</td>
+                            <td>${entry['Action Taken']}</td>
+                            <td>${entry['Type Of Error']}</td>
+                            <td>${entry['Error Remark']}</td>
+                            <td>${entry['Task Time']}</td>
+                            <td>${entry['Task Name']}</td>
+                            <td>${entry['Time Stamp']}</td>
+                            <td>${entry['User Actioned']}</td>
+                            <!-- Add other columns as needed -->
+                        `;
+                        tableBody.appendChild(rowElement);
+                    });
+
+                    loading = false;
+
+                    // Update pagination controls
+                    updatePagination(filteredData.length);
+                }
+            });
+        }
+
+        // Function to update pagination controls
+        function updatePagination(totalRows) {
+            const totalPages = Math.ceil(totalRows / rowsPerPage);
+            const paginationElement = document.getElementById('pagination');
+            paginationElement.innerHTML = "";
+
+            // Add previous page arrow
+            if (currentPage > 1) {
+                const prevPageLink = document.createElement('a');
+                prevPageLink.href = '#';
+                prevPageLink.classList.add('page-link');
+                prevPageLink.innerHTML = '&lt; Prev';
+
+                prevPageLink.addEventListener('click', function (event) {
+                    event.preventDefault();
+                    currentPage--;
+                    fetchData();
+                });
+
+                paginationElement.appendChild(prevPageLink);
+            }
+
+            // Add next page arrow
+            if (currentPage < totalPages) {
+                const nextPageLink = document.createElement('a');
+                nextPageLink.href = '#';
+                nextPageLink.classList.add('page-link');
+                nextPageLink.innerHTML = 'Next &gt;';
+
+                nextPageLink.addEventListener('click', function (event) {
+                    event.preventDefault();
+                    currentPage++;
+                    fetchData();
+                });
+
+                paginationElement.appendChild(nextPageLink);
+            }
+        }
+
+        // Function to apply filters based on search bars
+        function applyFilters(data) {
+            const searchAgent = document.getElementById('searchAgent').value.toLowerCase();
+            const searchStdID = document.getElementById('searchStdID').value.toLowerCase();
+            const searchTicketNo = document.getElementById('searchTicketNo').value.toLowerCase();
+
+            return data.filter(row =>
+                (searchAgent === '' || row[2].toLowerCase().includes(searchAgent)) &&
+                (searchStdID === '' || row[7].toLowerCase().includes(searchStdID)) &&
+                (searchTicketNo === '' || row[6].toLowerCase().includes(searchTicketNo))
+            );
+        }
+
+// Function to download data in XLS format for a specific date range
+function downloadDataByDateRange() {
+    const startDateString = $('#startDate').val();
+    const endDateString = $('#endDate').val();
+
+    // Validate date inputs
+    if (!startDateString || !endDateString) {
+        alert('Please select both Start Date and End Date.');
+        return;
+    }
+
+    const startDate = new Date(startDateString);
+    const endDate = new Date(endDateString);
+
+    // Validate if End Date is after Start Date
+    if (startDate > endDate) {
+        alert('End Date must be equal to or after Start Date.');
+        return;
+    }
+
+    // Use the Google Sheets API to get data
+    gapi.client.sheets.spreadsheets.values.get({
+        spreadsheetId: '1OMNz-fW9Jjgf_rsIoBk4OB_NPvZTjzHczhLCjxyRb1A',
+        range: 'ErrorData!A:O', // Update with your sheet name and range
+    }).then(function (response) {
+        const data = response.result.values;
+
+        if (data.length > 0) {
+            // Filter data based on date range
+            const filteredData = data.filter(row => {
+                const dateParts = row[0].split('-'); // Assuming Date is the first column in 'YYYY-MM-DD' format
+                const rowDate = new Date(dateParts[0], dateParts[1] - 1, dateParts[2]);
+                return rowDate >= startDate && rowDate <= endDate;
+            });
+
+            if (filteredData.length > 0) {
+                // Create a new workbook
+                const workbook = XLSX.utils.book_new();
+
+                // Add a worksheet with the filtered data
+                const worksheet = XLSX.utils.aoa_to_sheet([data[0], ...filteredData]); // Include headers
+
+                // Add the worksheet to the workbook
+                XLSX.utils.book_append_sheet(workbook, worksheet, 'FilteredErrorData');
+
+                // Save the workbook in XLS format
+                XLSX.writeFile(workbook, 'FilteredErrorData.xls');
+
+                alert('Data downloaded successfully.');
+            } else {
+                alert('No data available for the specified date range.');
+            }
+        } else {
+            alert('No data received for download.');
+        }
+    }).catch(function (error) {
+        console.error('Error fetching data from Google Sheets:', error);
+        alert('Error fetching data from Google Sheets. Please try again later.');
+    });
+}
+
+
+        // Initialize date pickers
+        $(function () {
+            $("#startDate").datepicker();
+            $("#endDate").datepicker();
+        });
+
+        function openModal() {
+    document.getElementById("licenseModal").style.display = "flex";
+}
+
+function closeModal() {
+    document.getElementById("licenseModal").style.display = "none";
+}
+    
+        // Fetch data when the page loads
+        window.onload = start;
+    </script>
+</body>
+</html>
 
