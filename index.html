@@ -303,7 +303,7 @@ tr:nth-child(even) {
         const filterRegion = document.getElementById('filterRegion').value.toLowerCase();
 
         const filteredData = fullData.filter(row => {
-            return (filterDate === '' || row[5].toLowerCase().includes(filterDate)) &&
+            return (filterDate === '' || row[4].toLowerCase().includes(filterDate)) &&
                    (filterAgent === '' || row[0].toLowerCase().includes(filterAgent)) &&
                    (filterVertical === '' || row[1].toLowerCase().includes(filterVertical)) &&
                    (filterRegion === '' || row[2].toLowerCase().includes(filterRegion));
