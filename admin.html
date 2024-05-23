@@ -8,25 +8,25 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
- body {
+        body {
             font-family: 'Poppins', sans-serif;
-            background: #1e3799; /* A deep blue background color */
+            background: #1e3799;
             color: #fff;
             display: flex;
             flex-direction: column;
-            justify-content: center; /* Center content vertically and horizontally */
+            justify-content: center;
             align-items: center;
             height: 100vh;
             margin: 0;
-            overflow-x: hidden; /* Hide horizontal scrollbar */
+            overflow-x: hidden;
         }
         .container {
             text-align: center;
-            background-color: rgba(0, 0, 0, 0.6); /* A semi-transparent black background for the container */
+            background-color: rgba(0, 0, 0, 0.6);
             padding: 20px;
             border-radius: 10px;
-            margin-left: 20px; /* Add margin to accommodate the sidebar */
-            z-index: 0; /* Set the z-index to 0 to ensure it's below the sidebar */
+            margin-left: 20px;
+            z-index: 0;
             margin-top: 180px;
             gap: 10px;
         }
@@ -48,30 +48,28 @@
             color: #fff;
         }
         .button-30 {
-            background: #4CAF50; /* Green */
+            background: #4CAF50;
             border: none;
             padding: 10px 20px;
             color: #FFFFFF;
             border-radius: 5px;
             cursor: pointer;
             font-size: 16px;
-            margin-top: 0; /* Remove the negative margin */
-            margin-left: 0; /* Align the button next to the input */
+            margin-top: 0;
+            margin-left: 0;
             margin-top: 10px;
         }
         .button-30:hover {
             background-color: #45a049;
         }
-
         .date-button-container {
-    display: flex; /* This will only apply flex to the container of the date picker and button */
-    align-items: center; /* This will vertically center the button and date picker */
-    justify-content: center; /* This will horizontally center the button and date picker on the page */
-    gap: 10px; /* Adjust the space between the date picker and the button */
-}
-
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
         .navbar {
-            background-color: #1e3799; /* Dark blue background color for the navbar */
+            background-color: #1e3799;
             width: 100%;
             position: fixed;
             top: 0;
@@ -102,52 +100,56 @@
             transition: color 0.3s ease;
         }
         .nav-link:hover {
-            color: #45a049; /* Green color on hover */
+            color: #45a049;
         }
         .container {
             text-align: center;
-            background-color: rgba(0, 0, 0, 0.6); /* A semi-transparent black background for the container */
+            background-color: rgba(0, 0, 0, 0.6);
             padding: 20px;
             border-radius: 10px;
-            margin-top: -60px; /* Adjusted top margin to accommodate the navbar */
+            margin-top: -60px;
             gap: 10px;
         }
         h1 {
             font-size: 32px;
         }
-        
-/* Modal Styles */
 .modal {
-    display: none; 
-    position: fixed; 
-    z-index: 2; 
-    left: 0; 
-    top: 0; 
-    width: 100%; 
-    height: 100%; 
-    overflow: auto; 
-    background-color: rgba(0, 0, 0, 0.4); 
+    display: none;
+    position: fixed;
+    z-index: 2;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.4);
+    display: flex;
     align-items: center;
     justify-content: center;
-    display: flex;
 }
 
 .modal-content {
-    background-color:#333; 
-    margin: auto; 
-    padding: 20px; 
-    border-radius: 8px; 
+    position: relative;
+    background-color: #333;
+    padding: 20px;
+    border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     width: 25%;
     min-width: 300px;
     text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
+
 .close {
-    color: #888; 
-    float: right; 
-    font-size: 24px; 
-    font-weight: bold; 
+    position: absolute;
+    top: 10px;
+    right: 25px;
+    color: #888;
+    font-size: 24px;
+    font-weight: bold;
     cursor: pointer;
 }
 
@@ -158,20 +160,17 @@
     cursor: pointer;
 }
 
-/* Style for the checkbox dropdown */
 .checkbox-dropdown {
     width: auto;
     border: 1px solid #aaa;
-    padding: 10px;
+    padding: 10px 30px 10px 10px; /* Adjusted padding to accommodate the dropdown arrow */
     position: relative;
-    margin: 0 auto;
     background-color: white;
     color: black;
     cursor: pointer;
     user-select: none;
 }
 
-/* Display CSS arrow to the right of the dropdown text */
 .checkbox-dropdown:after {
     content: '';
     height: 0;
@@ -179,81 +178,72 @@
     width: 0;
     border: 6px solid transparent;
     border-top-color: #000;
-    top: 50%;
+    top: calc(50%); /* Adjusted to move the arrow below the dropdown content */
     right: 10px;
     margin-top: -3px;
 }
 
-/* Reverse the CSS arrow when the dropdown is active */
-.checkbox-dropdown.is-active:after {
-    border-bottom-color: #000;
-    border-top-color: transparent;
-    margin-top: -9px;
-}
-
-/* Style for the dropdown list */
-.checkbox-dropdown-list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    position: absolute;
-    top: 100%;
-    border: inherit;
-    border-top: none;
-    left: -1px;
-    right: -1px;
-    opacity: 0;
-    background-color: white;
-    transition: opacity 0.4s ease-in-out;
-    max-height: 200px;
-    overflow: auto;
-    z-index: 5;
-    pointer-events: none;
-}
-
-.is-active .checkbox-dropdown-list {
-    opacity: 1;
-    pointer-events: auto;
-}
-
-/* Style for each list item in the dropdown */
-.checkbox-dropdown-list li label {
-    display: block;
-    border-bottom: 1px solid silver;
-    padding: 10px;
-    transition: background-color 0.2s ease-out;
-}
-
-.checkbox-dropdown-list li label:hover {
-    background-color: #f2f2f2;
-}
-/* Button Styles */
-button {
-    background-color: #4CAF50; 
-    color: white; 
-    padding: 10px 20px; 
-    margin: 10px 0; 
-    border: none; 
-    border-radius: 4px; 
-    cursor: pointer; 
-    font-size: 16px;
-}
-
-button:hover {
-    background-color: #45a049;
-}
+        .checkbox-dropdown.is-active:after {
+            border-bottom-color: #000;
+            border-top-color: transparent;
+            margin-top: -9px;
+        }
+        .checkbox-dropdown-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            position: absolute;
+            top: 100%;
+            border: inherit;
+            border-top: none;
+            left: -1px;
+            right: -1px;
+            opacity: 0;
+            background-color: white;
+            transition: opacity 0.4s ease-in-out;
+            max-height: 200px;
+            overflow: auto;
+            z-index: 5;
+            pointer-events: none;
+        }
+        .is-active .checkbox-dropdown-list {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .checkbox-dropdown-list li label {
+            display: block;
+            border-bottom: 1px solid silver;
+            padding: 10px;
+            transition: background-color 0.2s ease-out;
+        }
+        .checkbox-dropdown-list li label:hover {
+            background-color: #f2f2f2;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
     </style>
 </head>
 <body>
 
-    <!-- Navigation Bar -->
+<!-- Navigation Bar -->
 <div class="navbar">
     <div class="navbar-content">
         <a href="#" class="navbar-logo">Admin Console</a>
         <ul class="navbar-links">
             <li><a href="index.html" class="nav-link">PR Logger</a></li>
             <li><a href="admin.html" class="nav-link">Admin Report Console</a></li>
-            <li><a href="QA.html"    class="nav-link">Quality Logger & Console</a></li>
+            <li><a href="QA.html" class="nav-link">Quality Logger & Console</a></li>
         </ul>
     </div>
 </div>
@@ -273,165 +263,163 @@ button:hover {
     </div>
 </div>
 
-    <!-- Modal for Department Selection -->
-    <div id="departmentModal" class="modal" style="display: none;">
-        <div class="modal-content">
-            <span class="close" id="closeModal">&times;</span>
-            <h2>Select Department</h2>
-            <div class="checkbox-dropdown">
-                Choose Department
-                <ul class="checkbox-dropdown-list">
-                    <li><label><input type="checkbox" value="all" name="department" />All Departments</label></li>
-                    <li><label><input type="checkbox" value="Pathways" name="department" />Pathways</label></li>
-                    <li><label><input type="checkbox" value="Oxford Direct" name="department" />Oxford Direct</label></li>
-                </ul>
-            </div>
-            <button id="triggerDownload">Download Report</button>
+<!-- Modal for Department Selection -->
+<div id="departmentModal" class="modal">
+    <div class="modal-content">
+        <span class="close" id="closeModal">&times;</span>
+        <h2>Select Department</h2>
+        <div class="checkbox-dropdown">
+            Choose Department
+            <ul class="checkbox-dropdown-list">
+                <li><label><input type="checkbox" value="all" name="department" />All Departments</label></li>
+                <li><label><input type="checkbox" value="Pathways" name="department" />Pathways</label></li>
+                <li><label><input type="checkbox" value="Oxford Direct" name="department" />Oxford Direct</label></li>
+            </ul>
         </div>
+        <button id="triggerDownload">Download Report</button>
     </div>
-  
-  
+</div>
+
 <!-- JavaScript to control the report download -->
 <script>
-$(document).ready(function() {
-    $(".checkbox-dropdown").click(function() {
-        $(this).toggleClass("is-active");
-    });
+    $(document).ready(function () {
+        $(".checkbox-dropdown").click(function () {
+            $(this).toggleClass("is-active");
+        });
 
-    $(".checkbox-dropdown ul").click(function(e) {
-        e.stopPropagation();
-    });
+        $(".checkbox-dropdown ul").click(function (e) {
+            e.stopPropagation();
+        });
 
-    document.getElementById('downloadExcel').addEventListener('click', function() {
-        var fromDate = document.getElementById('fromDate').value;
-        var toDate = document.getElementById('toDate').value;
+document.getElementById('downloadExcel').addEventListener('click', function () {
+    var fromDate = document.getElementById('fromDate').value;
+    var toDate = document.getElementById('toDate').value;
 
-        if (!fromDate || !toDate) {
-            alert('Please select both From and To dates.');
-            return;
-        }
-
-        document.getElementById('departmentModal').style.display = 'block';
-    });
-
-    document.getElementById('closeModal').addEventListener('click', function() {
-        document.getElementById('departmentModal').style.display = 'none';
-    });
-
-    document.getElementById('triggerDownload').addEventListener('click', function() {
-        document.getElementById('departmentModal').style.display = 'none';
-        var fromDate = document.getElementById('fromDate').value;
-        var toDate = document.getElementById('toDate').value;
-        var checkboxes = document.querySelectorAll('.checkbox-dropdown-list input[type="checkbox"]:checked');
-        var selectedDepartments = Array.from(checkboxes).map(cb => cb.value);
-
-        if (selectedDepartments.includes('all')) {
-            selectedDepartments = ['all'];
-        }
-
-        fetchAndProcessData(fromDate, toDate, selectedDepartments);
-    });
-
-    function fetchAndProcessData(fromDate, toDate, selectedDepartments) {
-    // Replace these with your actual API key and sheet ID
-    const apiKey = 'AIzaSyBetGkBUBGg8vqxEYAnwm0FMXUCrole-xs'; // Replace with your actual API key
-    const sheetId = '1QqxjcZj8YZWHNri6quC3Cu3uUo9pWrlP9P73k3oKUAM'; // Replace with your actual sheet ID
-    const range = 'A:Z';
-
-        fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`)
-            .then(response => response.json())
-            .then(data => {
-                const headers = data.values[0];
-                const rows = data.values.slice(1);
-                let reportData = {};
-                let rawSheetData = [];
-                const datewiseReportData = {};
-
-                rows.forEach(row => {
-                    const taskDate = row[headers.indexOf('Task Date')];
-                    const workingDepartment = row[headers.indexOf('Working Department')];
-
-                    if (
-                        new Date(taskDate) >= new Date(fromDate) &&
-                        new Date(taskDate) <= new Date(toDate) &&
-                        (selectedDepartments.includes('all') || selectedDepartments.includes(workingDepartment))
-                    ) {
-                        rawSheetData.push(row);
-
-                        const agentName = row[headers.indexOf('Agent Name')];
-                        const workingRegion = row[headers.indexOf('Working Region')];
-                        const taskTime = row[headers.indexOf('Task Time')];
-
-                        let [hours, minutes] = taskTime.split(':').map(n => parseInt(n, 10));
-                        let totalMinutes = hours * 60 + minutes;
-
-                        if (!datewiseReportData[agentName]) {
-                            datewiseReportData[agentName] = {};
-                        }
-
-                        if (!datewiseReportData[agentName][taskDate]) {
-                            datewiseReportData[agentName][taskDate] = {
-                                'Working Department': workingDepartment,
-                                'Working Region': workingRegion,
-                                'Total Task Time': 0,
-                                'Submission Count': 0
-                            };
-                        }
-
-                        datewiseReportData[agentName][taskDate]['Total Task Time'] += totalMinutes;
-                        datewiseReportData[agentName][taskDate]['Submission Count'] += 1;
-                    }
-                });
-
-                let datewiseReportArray = [];
-
-                for (const agentName in datewiseReportData) {
-                    for (const taskDate in datewiseReportData[agentName]) {
-                        const totalMinutes = datewiseReportData[agentName][taskDate]['Total Task Time'];
-                        const hours = Math.floor(totalMinutes / 60);
-                        const minutes = totalMinutes % 60;
-                        const formattedTime = `${hours}h ${minutes}m`;
-
-                        datewiseReportArray.push({
-                            'Agent Name': agentName,
-                            'Working Department': datewiseReportData[agentName][taskDate]['Working Department'],
-                            'Working Region': datewiseReportData[agentName][taskDate]['Working Region'],
-                            'Total Task Time': formattedTime,
-                            'Submission Count': datewiseReportData[agentName][taskDate]['Submission Count'],
-                            'Date': taskDate
-                        });
-                    }
-                }
-
-                let filteredReportArray = selectedDepartments.includes('all')
-                    ? datewiseReportArray
-                    : datewiseReportArray.filter(row => selectedDepartments.includes(row['Working Department']));
-
-                if (filteredReportArray.length === 0) {
-                    alert('No data found for the selected date range and/or department.');
-                    return;
-                }
-
-                createSheetsAndDownload(filteredReportArray, rawSheetData, headers, fromDate, toDate);
-            })
-            .catch(error => {
-                console.error('Error fetching data:', error);
-            });
+    if (!fromDate || !toDate) {
+        alert('Please select both From and To dates.');
+        return;
     }
 
-    function createSheetsAndDownload(reportArray, rawSheetData, headers, fromDate, toDate) {
-        let worksheet1 = XLSX.utils.json_to_sheet(reportArray);
-        let workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet1, 'Summary Report');
-
-        rawSheetData.unshift(headers);
-        let worksheet2 = XLSX.utils.aoa_to_sheet(rawSheetData);
-        XLSX.utils.book_append_sheet(workbook, worksheet2, 'Raw Data');
-
-        XLSX.writeFile(workbook, `Report_${fromDate}_to_${toDate}.xlsx`);
-    }
+    document.getElementById('departmentModal').style.display = 'flex';
 });
 
+document.getElementById('closeModal').addEventListener('click', function () {
+    document.getElementById('departmentModal').style.display = 'none';
+});
+
+
+        document.getElementById('triggerDownload').addEventListener('click', function () {
+            document.getElementById('departmentModal').style.display = 'none';
+            var fromDate = document.getElementById('fromDate').value;
+            var toDate = document.getElementById('toDate').value;
+            var checkboxes = document.querySelectorAll('.checkbox-dropdown-list input[type="checkbox"]:checked');
+            var selectedDepartments = Array.from(checkboxes).map(cb => cb.value);
+
+            if (selectedDepartments.includes('all')) {
+                selectedDepartments = ['all'];
+            }
+
+            fetchAndProcessData(fromDate, toDate, selectedDepartments);
+        });
+
+        function fetchAndProcessData(fromDate, toDate, selectedDepartments) {
+            const apiKey = 'AIzaSyBetGkBUBGg8vqxEYAnwm0FMXUCrole-xs'; // Replace with your actual API key
+            const sheetId = '1QqxjcZj8YZWHNri6quC3Cu3uUo9pWrlP9P73k3oKUAM'; // Replace with your actual sheet ID
+            const range = 'A:Z';
+
+            fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`)
+                .then(response => response.json())
+                .then(data => {
+                    const headers = data.values[0];
+                    const rows = data.values.slice(1);
+                    let reportData = {};
+                    let rawSheetData = [];
+                    const datewiseReportData = {};
+
+                    rows.forEach(row => {
+                        const taskDate = row[headers.indexOf('Task Date')];
+                        const workingDepartment = row[headers.indexOf('Working Department')];
+
+                        if (
+                            new Date(taskDate) >= new Date(fromDate) &&
+                            new Date(taskDate) <= new Date(toDate) &&
+                            (selectedDepartments.includes('all') || selectedDepartments.includes(workingDepartment))
+                        ) {
+                            rawSheetData.push(row);
+
+                            const agentName = row[headers.indexOf('Agent Name')];
+                            const workingRegion = row[headers.indexOf('Working Region')];
+                            const taskTime = row[headers.indexOf('Task Time')];
+
+                            let [hours, minutes] = taskTime.split(':').map(n => parseInt(n, 10));
+                            let totalMinutes = hours * 60 + minutes;
+
+                            if (!datewiseReportData[agentName]) {
+                                datewiseReportData[agentName] = {};
+                            }
+
+                            if (!datewiseReportData[agentName][taskDate]) {
+                                datewiseReportData[agentName][taskDate] = {
+                                    'Working Department': workingDepartment,
+                                    'Working Region': workingRegion,
+                                    'Total Task Time': 0,
+                                    'Submission Count': 0
+                                };
+                            }
+
+                            datewiseReportData[agentName][taskDate]['Total Task Time'] += totalMinutes;
+                            datewiseReportData[agentName][taskDate]['Submission Count'] += 1;
+                        }
+                    });
+
+                    let datewiseReportArray = [];
+
+                    for (const agentName in datewiseReportData) {
+                        for (const taskDate in datewiseReportData[agentName]) {
+                            const totalMinutes = datewiseReportData[agentName][taskDate]['Total Task Time'];
+                            const hours = Math.floor(totalMinutes / 60);
+                            const minutes = totalMinutes % 60;
+                            const formattedTime = `${hours}h ${minutes}m`;
+
+                            datewiseReportArray.push({
+                                'Agent Name': agentName,
+                                'Working Department': datewiseReportData[agentName][taskDate]['Working Department'],
+                                'Working Region': datewiseReportData[agentName][taskDate]['Working Region'],
+                                'Total Task Time': formattedTime,
+                                'Submission Count': datewiseReportData[agentName][taskDate]['Submission Count'],
+                                'Date': taskDate
+                            });
+                        }
+                    }
+
+                    let filteredReportArray = selectedDepartments.includes('all')
+                        ? datewiseReportArray
+                        : datewiseReportArray.filter(row => selectedDepartments.includes(row['Working Department']));
+
+                    if (filteredReportArray.length === 0) {
+                        alert('No data found for the selected date range and/or department.');
+                        return;
+                    }
+
+                    createSheetsAndDownload(filteredReportArray, rawSheetData, headers, fromDate, toDate);
+                })
+                .catch(error => {
+                    console.error('Error fetching data:', error);
+                });
+        }
+
+        function createSheetsAndDownload(reportArray, rawSheetData, headers, fromDate, toDate) {
+            let worksheet1 = XLSX.utils.json_to_sheet(reportArray);
+            let workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet1, 'Summary Report');
+
+            rawSheetData.unshift(headers);
+            let worksheet2 = XLSX.utils.aoa_to_sheet(rawSheetData);
+            XLSX.utils.book_append_sheet(workbook, worksheet2, 'Raw Data');
+
+            XLSX.writeFile(workbook, `Report_${fromDate}_to_${toDate}.xlsx`);
+        }
+    });
 </script>
 </body>
 </html>
