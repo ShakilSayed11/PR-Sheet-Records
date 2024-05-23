@@ -264,16 +264,25 @@
 </div>
 
 <!-- Modal for Department Selection -->
-<div id="departmentModal" class="modal" style="display: none;"> <!-- Set initial display to none -->
+<div id="departmentModal" class="modal" style="display: none;">
     <div class="modal-content">
         <span class="close" id="closeModal">&times;</span>
-        <h2>Select Department</h2>
+        <h2>Select Department or Region</h2>
         <div class="checkbox-dropdown">
             Choose Department
-            <ul class="checkbox-dropdown-list">
-                <li><label><input type="checkbox" value="all" name="department" />All Departments</label></li>
+            <ul class="checkbox-dropdown-list" id="departmentDropdown">
                 <li><label><input type="checkbox" value="Pathways" name="department" />Pathways</label></li>
                 <li><label><input type="checkbox" value="Oxford Direct" name="department" />Oxford Direct</label></li>
+                <!-- Add more department options here -->
+            </ul>
+        </div>
+        <div class="checkbox-dropdown">
+            Choose Working Region
+            <ul class="checkbox-dropdown-list" id="workingRegionDropdown">
+                <li><label><input type="checkbox" value="CAS TEAM" name="workingRegion" />CAS TEAM</label></li>
+                <li><label><input type="checkbox" value="North America" name="workingRegion" />North America</label></li>
+                <li><label><input type="checkbox" value="India" name="workingRegion" />India</label></li>
+                <!-- Add more region options here -->
             </ul>
         </div>
         <button id="triggerDownload">Download Report</button>
@@ -291,39 +300,34 @@
             e.stopPropagation();
         });
 
-document.getElementById('downloadExcel').addEventListener('click', function () {
-    var fromDate = document.getElementById('fromDate').value;
-    var toDate = document.getElementById('toDate').value;
+        document.getElementById('downloadExcel').addEventListener('click', function () {
+            var fromDate = document.getElementById('fromDate').value;
+            var toDate = document.getElementById('toDate').value;
 
-    if (!fromDate || !toDate) {
-        alert('Please select both From and To dates.');
-        return;
-    }
+            if (!fromDate || !toDate) {
+                alert('Please select both From and To dates.');
+                return;
+            }
 
-    // Show the modal
-    document.getElementById('departmentModal').style.display = 'flex';
-});
+            // Show the modal
+            document.getElementById('departmentModal').style.display = 'flex';
+        });
 
-document.getElementById('closeModal').addEventListener('click', function () {
-    document.getElementById('departmentModal').style.display = 'none';
-});
-
+        document.getElementById('closeModal').addEventListener('click', function () {
+            document.getElementById('departmentModal').style.display = 'none';
+        });
 
         document.getElementById('triggerDownload').addEventListener('click', function () {
             document.getElementById('departmentModal').style.display = 'none';
             var fromDate = document.getElementById('fromDate').value;
             var toDate = document.getElementById('toDate').value;
-            var checkboxes = document.querySelectorAll('.checkbox-dropdown-list input[type="checkbox"]:checked');
-            var selectedDepartments = Array.from(checkboxes).map(cb => cb.value);
+            var selectedDepartments = Array.from(document.querySelectorAll('#departmentDropdown input[type="checkbox"]:checked')).map(cb => cb.value);
+            var selectedWorkingRegions = Array.from(document.querySelectorAll('#workingRegionDropdown input[type="checkbox"]:checked')).map(cb => cb.value);
 
-            if (selectedDepartments.includes('all')) {
-                selectedDepartments = ['all'];
-            }
-
-            fetchAndProcessData(fromDate, toDate, selectedDepartments);
+            fetchAndProcessData(fromDate, toDate, selectedDepartments, selectedWorkingRegions);
         });
 
-        function fetchAndProcessData(fromDate, toDate, selectedDepartments) {
+        function fetchAndProcessData(fromDate, toDate, selectedDepartments, selectedWorkingRegions) {
             const apiKey = 'AIzaSyBetGkBUBGg8vqxEYAnwm0FMXUCrole-xs'; // Replace with your actual API key
             const sheetId = '1QqxjcZj8YZWHNri6quC3Cu3uUo9pWrlP9P73k3oKUAM'; // Replace with your actual sheet ID
             const range = 'A:Z';
@@ -340,16 +344,17 @@ document.getElementById('closeModal').addEventListener('click', function () {
                     rows.forEach(row => {
                         const taskDate = row[headers.indexOf('Task Date')];
                         const workingDepartment = row[headers.indexOf('Working Department')];
+                        const workingRegion = row[headers.indexOf('Working Region')];
 
                         if (
                             new Date(taskDate) >= new Date(fromDate) &&
                             new Date(taskDate) <= new Date(toDate) &&
-                            (selectedDepartments.includes('all') || selectedDepartments.includes(workingDepartment))
+                            ((selectedDepartments.length === 0 || selectedDepartments.includes('all') || selectedDepartments.includes(workingDepartment)) &&
+                            (selectedWorkingRegions.length === 0 || selectedWorkingRegions.includes('all') || selectedWorkingRegions.includes(workingRegion)))
                         ) {
                             rawSheetData.push(row);
 
                             const agentName = row[headers.indexOf('Agent Name')];
-                            const workingRegion = row[headers.indexOf('Working Region')];
                             const taskTime = row[headers.indexOf('Task Time')];
 
                             let [hours, minutes] = taskTime.split(':').map(n => parseInt(n, 10));
@@ -381,8 +386,7 @@ document.getElementById('closeModal').addEventListener('click', function () {
                             const hours = Math.floor(totalMinutes / 60);
                             const minutes = totalMinutes % 60;
                             const formattedTime = `${hours}h ${minutes}m`;
-
-                            datewiseReportArray.push({
+                                                      datewiseReportArray.push({
                                 'Agent Name': agentName,
                                 'Working Department': datewiseReportData[agentName][taskDate]['Working Department'],
                                 'Working Region': datewiseReportData[agentName][taskDate]['Working Region'],
@@ -393,12 +397,18 @@ document.getElementById('closeModal').addEventListener('click', function () {
                         }
                     }
 
-                    let filteredReportArray = selectedDepartments.includes('all')
-                        ? datewiseReportArray
-                        : datewiseReportArray.filter(row => selectedDepartments.includes(row['Working Department']));
+                    let filteredReportArray = datewiseReportArray;
+
+                    if (selectedDepartments.length && !selectedDepartments.includes('all')) {
+                        filteredReportArray = filteredReportArray.filter(row => selectedDepartments.includes(row['Working Department']));
+                    }
+
+                    if (selectedWorkingRegions.length && !selectedWorkingRegions.includes('all')) {
+                        filteredReportArray = filteredReportArray.filter(row => selectedWorkingRegions.includes(row['Working Region']));
+                    }
 
                     if (filteredReportArray.length === 0) {
-                        alert('No data found for the selected date range and/or department.');
+                        alert('No data found for the selected date range, department, and/or working region.');
                         return;
                     }
 
