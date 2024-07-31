@@ -96,6 +96,7 @@ th {
     background-color: var(--primary-color);
     color: white;
 }
+
 td:hover {
     background-color: var(--secondary-color);
     color: white;
@@ -112,8 +113,6 @@ tr:nth-child(even) {
     gap: 10px;
 }
 
-
-/* Style for Pagination Input Bar */
 #pagination #recordsPerPage {
     background-color: var(--card-background);
     border: 2px solid var(--primary-color);
@@ -153,7 +152,6 @@ tr:nth-child(even) {
     }
 }
 
-/* CSS */
 .button-30 {
   align-items: center;
   appearance: none;
@@ -232,15 +230,15 @@ tr:nth-child(even) {
     </style>
 </head>
 <body>
-           <!-- Navigation Bar -->
-        <div class="navbar">
-            <div class="navbar-title">PR Logger</div>
-            <div class="navbar-links">
-                <a href="index.html">PR Logger</a>
-                <a href="admin.html">Admin Report Console</a>
-            </div>
+    <!-- Navigation Bar -->
+    <div class="navbar">
+        <div class="navbar-title">PR Logger</div>
+        <div class="navbar-links">
+            <a href="index.html">PR Logger</a>
+            <a href="admin.html">Admin Report Console</a>
         </div>
-    
+    </div>
+
     <div id="filters">
         <input type="text" id="filterDate" placeholder="Filter by Date">
         <input type="text" id="filterAgent" placeholder="Filter by Agent Name">
@@ -254,6 +252,7 @@ tr:nth-child(even) {
         <button id="nextPage">Next</button>
         <input type="number" id="recordsPerPage" placeholder="Records per Page" value="10">
     </div>
+    
     <table id="sheetTable">
         <thead>
             <tr>
@@ -265,7 +264,8 @@ tr:nth-child(even) {
                 <th>Email Time</th>
                 <th>Task Name</th>
                 <th>Task Time</th>
-                <th>Submission Time</th> <!-- New column header -->
+                <th>Submission Time</th>
+                <th>Idle Time</th> <!-- New column header -->
             </tr>
         </thead>
         <tbody id="tableBody">
@@ -274,93 +274,128 @@ tr:nth-child(even) {
     </table>
     <button class="button-30" role="button" id="downloadExcel">Download Report</button>
 
-<script>       
-    function initializePage() {
+    <script>       
+        function initializePage() {
             const apiKey = 'AIzaSyBetGkBUBGg8vqxEYAnwm0FMXUCrole-xs'; // Replace with your actual API key
             const sheetId = '1QqxjcZj8YZWHNri6quC3Cu3uUo9pWrlP9P73k3oKUAM'; // Replace with your actual sheet ID
             const range = 'A:Z';
 
+            let fullData = [];
+            let currentPage = 1;
+            const defaultRecordsPerPage = 50;
 
-        let fullData = [];
-        let currentPage = 1;
-        const defaultRecordsPerPage = 50;
+            function fetchData() {
+                fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        fullData = data.values.slice(1); // Exclude header row
+                        updateDisplay();
+                    })
+                    .catch(error => {
+                        console.error('Error fetching data: ', error);
+                    });
+            }
 
-        function fetchData() {
-            fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`)
-                .then(response => response.json())
-                .then(data => {
-                    fullData = data.values.slice(1); // Exclude header row
-                    updateDisplay();
-                })
-                .catch(error => {
-                    console.error('Error fetching data: ', error);
+            function formatTime(diffMs) {
+                const hours = String(Math.floor(diffMs / 3600000)).padStart(2, '0');
+                const minutes = String(Math.floor((diffMs % 3600000) / 60000)).padStart(2, '0');
+                const seconds = String(Math.floor((diffMs % 60000) / 1000)).padStart(2, '0');
+                return `${hours}:${minutes}:${seconds}`;
+            }
+
+            function updateDisplay() {
+                const filterDate = document.getElementById('filterDate').value.toLowerCase();
+                const filterAgent = document.getElementById('filterAgent').value.toLowerCase();
+                const filterVertical = document.getElementById('filterVertical').value.toLowerCase();
+                const filterRegion = document.getElementById('filterRegion').value.toLowerCase();
+
+                const filteredData = fullData.filter(row => {
+                    return (filterDate === '' || row[4].toLowerCase().includes(filterDate)) &&
+                           (filterAgent === '' || row[0].toLowerCase().includes(filterAgent)) &&
+                           (filterVertical === '' || row[1].toLowerCase().includes(filterVertical)) &&
+                           (filterRegion === '' || row[2].toLowerCase().includes(filterRegion));
                 });
+
+                const recordsPerPage = parseInt(document.getElementById('recordsPerPage').value) || defaultRecordsPerPage;
+                const startIndex = (currentPage - 1) * recordsPerPage;
+                const endIndex = startIndex + recordsPerPage;
+                const paginatedData = filteredData.slice(startIndex, endIndex);
+
+                const tableBody = document.getElementById('tableBody');
+                tableBody.innerHTML = '';
+
+                const userLastTaskTime = {};
+
+                paginatedData.forEach(row => {
+                    const agentName = row[0];
+                    const taskDate = row[4];
+                    const taskTime = new Date(`${taskDate} ${row[8]}`); // Combine task date and time
+
+                    if (userLastTaskTime[agentName]) {
+                        const previousTaskTime = userLastTaskTime[agentName];
+                        const diffMs = taskTime - previousTaskTime;
+                        if (diffMs > 0) {
+                            const idleTime = formatTime(diffMs);
+                            const idleFrom = previousTaskTime.toLocaleTimeString();
+                            const idleTo = taskTime.toLocaleTimeString();
+                            const idleRow = `
+                                <tr>
+                                    <td>${agentName}</td>
+                                    <td colspan="3">Idle from ${idleFrom} to ${idleTo}</td>
+                                    <td>${taskDate}</td>
+                                    <td colspan="4">Idle Time</td>
+                                    <td>${idleTime}</td>
+                                </tr>`;
+                            tableBody.innerHTML += idleRow;
+                        }
+                    }
+
+                    userLastTaskTime[agentName] = taskTime;
+
+                    const html = `<tr>${row.map(cell => `<td>${cell}</td>`).join('')}<td></td></tr>`;
+                    tableBody.innerHTML += html;
+                });
+
+                document.getElementById('pageInfo').textContent = `Page ${currentPage} of ${Math.ceil(filteredData.length / recordsPerPage)}`;
+            }
+
+            document.querySelectorAll('#filters input').forEach(input => {
+                input.addEventListener('input', () => {
+                    currentPage = 1;
+                    updateDisplay();
+                });
+            });
+
+            document.getElementById('prevPage').addEventListener('click', () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    updateDisplay();
+                }
+            });
+
+            document.getElementById('nextPage').addEventListener('click', () => {
+                currentPage++;
+                updateDisplay();
+            });
+
+            document.getElementById('recordsPerPage').addEventListener('change', () => {
+                currentPage = 1;
+                updateDisplay();
+            });
+
+            fetchData();
+            setInterval(fetchData, 30000);
+
+            document.getElementById('downloadExcel').addEventListener('click', function() {
+                var table = document.getElementById('sheetTable');
+                var workbook = XLSX.utils.table_to_book(table);
+                XLSX.writeFile(workbook, 'TableData.xlsx');
+            });
         }
-    function updateDisplay() {
-        const filterDate = document.getElementById('filterDate').value.toLowerCase();
-        const filterAgent = document.getElementById('filterAgent').value.toLowerCase();
-        const filterVertical = document.getElementById('filterVertical').value.toLowerCase();
-        const filterRegion = document.getElementById('filterRegion').value.toLowerCase();
 
-        const filteredData = fullData.filter(row => {
-            return (filterDate === '' || row[4].toLowerCase().includes(filterDate)) &&
-                   (filterAgent === '' || row[0].toLowerCase().includes(filterAgent)) &&
-                   (filterVertical === '' || row[1].toLowerCase().includes(filterVertical)) &&
-                   (filterRegion === '' || row[2].toLowerCase().includes(filterRegion));
+        document.addEventListener('DOMContentLoaded', function() {
+            initializePage();
         });
-
-        const recordsPerPage = parseInt(document.getElementById('recordsPerPage').value) || defaultRecordsPerPage;
-        const startIndex = (currentPage - 1) * recordsPerPage;
-        const endIndex = startIndex + recordsPerPage;
-        const paginatedData = filteredData.slice(startIndex, endIndex);
-
-        const tableBody = document.getElementById('tableBody');
-        tableBody.innerHTML = '';
-paginatedData.forEach(row => {
-    const html = `<tr>${row.map(cell => `<td>${cell}</td>`).join('')}</tr>`;
-    tableBody.innerHTML += html;
-});
-
-        document.getElementById('pageInfo').textContent = `Page ${currentPage} of ${Math.ceil(filteredData.length / recordsPerPage)}`;
-    }
-
-    document.querySelectorAll('#filters input').forEach(input => {
-        input.addEventListener('input', () => {
-            currentPage = 1;
-            updateDisplay();
-        });
-    });
-
-    document.getElementById('prevPage').addEventListener('click', () => {
-        if (currentPage > 1) {
-            currentPage--;
-            updateDisplay();
-        }
-    });
-
-    document.getElementById('nextPage').addEventListener('click', () => {
-        currentPage++;
-        updateDisplay();
-    });
-
-    document.getElementById('recordsPerPage').addEventListener('change', () => {
-        currentPage = 1;
-        updateDisplay();
-    });
-
-    fetchData();
-        setInterval(fetchData, 30000);
-
-        document.getElementById('downloadExcel').addEventListener('click', function() {
-            var table = document.getElementById('sheetTable');
-            var workbook = XLSX.utils.table_to_book(table);
-            XLSX.writeFile(workbook, 'TableData.xlsx');
-        });
-    }
-
-    document.addEventListener('DOMContentLoaded', function() {
-        initializePage();
-    });
     </script>
 </body>
-</html> 
+</html>
